@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "npx webpack --config webpack.config.js",
     "clean": "rimraf dist/*",
-    "build": "npm-run-all clean webpack; cp resources/zxing.wasm dist/"
+    "build": "npm-run-all clean webpack; cp resources/zxing.wasm dist/; cp -r resources/multi-barcode-scanner-js-model dist/;"
   },
   "keywords": [],
   "author": "",
