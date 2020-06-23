@@ -55,7 +55,6 @@ dst_dir = path.join(process.argv[2], 'multi-barcode-scanner-js-model')
 src = path.join('node_modules', package_name, 'dist', 'multi-barcode-scanner-js-model', 'group1-shard1of1.bin')
 dst = path.join(dst_dir, 'group1-shard1of1.bin')
 try {
-  fs.mkdirSync(dst_dir);
   fs.copyFileSync(src, dst, fs.constants.COPYFILE_EXCL);
   console.log('file is copied');
 } catch (error) {
