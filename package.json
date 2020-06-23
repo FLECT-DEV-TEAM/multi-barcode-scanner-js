@@ -1,6 +1,6 @@
 {
   "name": "multi-barcode-scanner-js",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "dist/multi-barcode-scanner-js.js",
   "scripts": {
