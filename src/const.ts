@@ -9,7 +9,7 @@ export const WorkerResponse = {
 
 
 export const AIConfig = {
-    SS_MODEL_PATH: '/WEB_MODEL/icnet_0300x0300_0.10/model.json',
+    SS_MODEL_PATH: '/multi-barcode-scanner-js-model/model.json',
 
     SPLIT_MARGIN: 0.2,
     SPLIT_WIDTH: 300,
