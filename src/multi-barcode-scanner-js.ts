@@ -14,7 +14,7 @@ export class MultiBarcodeReader{
     private _barcodePreviewCanvas:HTMLCanvasElement|null = null
     private initializedListeners     :(()=>void)[] = []
     private waitNextFrameListeners   :(()=>void)[] = []
-    private scanedBarcordListeners   :(()=>void)[] = []
+    private scanedBarcordListeners   :((barcodes:string[], areas:number[][])=>void)[] = []
 
     addInitializedListener = (f:(()=>void)) =>{
         this.initializedListeners.push(f)
@@ -22,7 +22,7 @@ export class MultiBarcodeReader{
     addWaitNextFrameListeners = (f:(()=>void)) =>{
         this.waitNextFrameListeners.push(f)
     }
-    addScanedBarcordListeners = (f:(()=>void)) =>{
+    addScanedBarcordListeners = (f:((barcodes:string[], areas:number[][])=>void)) =>{
         this.scanedBarcordListeners.push(f)
     }
 
@@ -78,12 +78,13 @@ export class MultiBarcodeReader{
                 this.workerCVInitialized = true
                 this.checkAndStart()
             }else if(event.data.message === WorkerResponse.SCANNED_BARCODES){
-                const barcodes = event.data.barcodes
-                const areas    = event.data.areas
+                const barcodes = event.data.barcodes as string[]
+                const areas    = event.data.areas as number[][]
                 // console.log("SCANNED_BARCODES", areas, barcodes)
                 if(this._barcodePreviewCanvas !== null){
                     this.previewAreas(areas, barcodes)
                 }
+                this.scanedBarcordListeners.map(f=>f(barcodes,areas))
                 event.data.barcodes = null
                 event.data.areas    = null
             }
