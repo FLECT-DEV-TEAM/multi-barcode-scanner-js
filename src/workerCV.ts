@@ -35,6 +35,13 @@ let decodePtr: any = null
 let decodeCallback: any = null
 let barcode: string | void | null = ""
 
+    // @ts-ignore
+const barcodeDetector = new BarcodeDetector({
+  formats: [
+    'ean_13',
+  ]
+});
+
 
 //decodeCallback = function (ptr: any, len: any, resultIndex: any, resultCount: any) {
 decodeCallback = function (ptr: any, len: any, resultIndex: any, resultCount: any,
@@ -210,11 +217,62 @@ export const rotateImageByCV = (img: ImageData, angle: number): ImageData => {
 
 
 
-export const scanBarcode = (image: ImageData, angle: number[]): string => {
+export const scanBarcode_google = async (image: ImageData, angle: number[]): Promise<string> => {
+  barcode = ""
+
+  const promiseList = []
+
+  for (let k = 0; k < angle.length; k++) {
+      const rotatedData = rotateImageByCV(image, angle[k])
+
+
+      // const start = performance.now();
+      // barcodeDetector.detect(rotatedData).then((barcodes:any[])=>{
+      //   console.log(barcodes)
+      //   if(barcodes.length >0){
+      //     barcode = barcodes[0].rawValue
+      //     return barcode
+      //   }
+
+      //   const end = performance.now();
+      //   const elapsed = (end - start);
+      //   const elapsedStr = elapsed.toFixed(3);
+      //   console.log(`Barcode Scan Time:${elapsedStr} ms`);
+      // })
+
+      const barcodes = await barcodeDetector.detect(rotatedData)
+      if(barcodes.length >0){
+        barcode = barcodes[0].rawValue as string
+        return barcode
+      }
+
+
+    //   const idd = rotatedData.data;
+    //   const input = zxing_asm._resize(rotatedData.width, rotatedData.height);
+    //   for (let i = 0, j = 0; i < idd.length; i += 4, j++) {
+    //     zxing_asm.HEAPU8[input + j] = 0.2989 * idd[i + 0] + 0.5870 * idd[i + 1] + 0.1140 * idd[i + 2]
+    //   }
+
+
+    //   const err = zxing_asm._decode_ean13(decodePtr);
+    // //if (barcode === "") {
+    // //  zxing_asm._decode_qr(decodePtr);
+    // //}
+    // if (barcode !== "") {
+    //   return barcode
+    // }
+  }
+  return barcode
+}
+
+export const scanBarcode = async (image: ImageData, angle: number[]): Promise<string> => {
   barcode = ""
 
   for (let k = 0; k < angle.length; k++) {
       const rotatedData = rotateImageByCV(image, angle[k])
+
+      const start = performance.now();
+
       const idd = rotatedData.data;
       const input = zxing_asm._resize(rotatedData.width, rotatedData.height);
       for (let i = 0, j = 0; i < idd.length; i += 4, j++) {
@@ -226,6 +284,11 @@ export const scanBarcode = (image: ImageData, angle: number[]): string => {
     //if (barcode === "") {
     //  zxing_asm._decode_qr(decodePtr);
     //}
+
+      const end = performance.now();
+      const elapsed = (end - start);
+      const elapsedStr = elapsed.toFixed(3);
+      console.log(`Barcode Scan Time:${elapsedStr} ms`);    
     if (barcode !== "") {
       return barcode
     }
@@ -235,12 +298,12 @@ export const scanBarcode = (image: ImageData, angle: number[]): string => {
 
 
 
-export const scanBarcodes = (images: ImageData[]): string[] => {
+export const scanBarcodes = async (images: ImageData[]): Promise<string[]> => {
   const result = []
   let image_num = images.length
   for (let i = 0; i < image_num; i++) {
     //    const barcode = scanBarcode(images[i], [0, 90, 85, 5])
-    const barcode = scanBarcode(images[i], [0, 90])
+    const barcode = await scanBarcode(images[i], [0, 90])
     result.push(barcode)
   }
   return result
@@ -249,7 +312,7 @@ export const scanBarcodes = (images: ImageData[]): string[] => {
 
 
 
-onmessage = (event) => {
+onmessage = async (event) => {
   // console.log('---------WorkerCV_message---------')
   // console.log(event)
 
@@ -277,7 +340,7 @@ onmessage = (event) => {
     // }
 
     // バーコードスキャン
-    const barcodes = scanBarcodes(transformedImages)
+    const barcodes = await scanBarcodes(transformedImages)
 
     ctx.postMessage({ message: WorkerResponse.SCANNED_BARCODES, barcodes: barcodes, areas: areas })
 
