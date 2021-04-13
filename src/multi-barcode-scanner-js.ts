@@ -175,7 +175,8 @@ export class MultiBarcodeReader{
         this.scalableSS.init(AIConfig.SS_MODEL_PATH, AIConfig.SPLIT_WIDTH, AIConfig.SPLIT_HEIGHT, AIConfig.SPLIT_MARGIN)
 
         // バーコード読み取り用ワーカー
-        this.workerCV = new Worker('./workerCV.ts', { type: 'module' })
+        // this.workerCV = new Worker('./workerCV.ts', { type: 'module' })
+        this.workerCV = new Worker('./workerCV.js', { type: 'module' })        
         this.workerCV.onmessage = (event) => {
             if (event.data.message === WorkerResponse.INITIALIZED) {
                 // console.log("WORKERCV INITIALIZED")
